@@ -17,19 +17,15 @@
   <img src="https://img.shields.io/badge/Format-Single_page_web_app-475569?style=flat-square" alt="Single page web app">
 </p>
 
-<!-- Add your one project screenshot here when ready.
-     Suggested path: assets/networkvisuals-preview.png
-     Then uncomment the image line below.
--->
 ![NetworkVisuals preview](assets/networkvisuals.png)
 
 ## 🧭 What is NetworkVisuals?
 
 Networking is easier to understand when you can **see the conversation**.
 
-NetworkVisuals is an interactive protocol-learning experience that breaks down how devices communicate. Instead of only reading definitions, you can explore protocol explanations, follow message sequences, and watch packet exchanges unfold between network devices.
+NetworkVisuals is a browser-based interactive networking visualizer that helps you understand how devices communicate. Explore network protocols, follow message sequences, and watch packet exchanges unfold between network devices.
 
-From a browser requesting a web page to DNS lookups, TCP handshakes, encrypted connections, VPN tunnels, and industrial protocols — NetworkVisuals helps make the flow of network communication easier to follow.
+From DNS lookups and TCP handshakes to HTTP requests, encrypted connections, VPN tunnels, wireless networking, and industrial protocols — NetworkVisuals makes the flow of network communication easier to follow.
 
 ## ✨ What you can explore
 
@@ -61,7 +57,7 @@ Choose **HTTP** and follow a simplified web request from start to finish:
 4. **HTTP response** — the server replies, for example with `HTTP/1.1 200 OK`.
 5. **Page rendering** — the browser uses the returned content to display the page.
 
-The packet-flow view makes the exchange tangible by showing the endpoints, protocol, order, timing, and size of each illustrative packet.
+The packet-flow view shows the endpoints, protocol, order, timing, and size of each illustrative packet.
 
 > **Learning note:** The HTTP example demonstrates unencrypted HTTP traffic. HTTPS uses TLS to protect application data in transit. The displayed addresses and packet details are illustrative, not a live capture.
 
@@ -70,20 +66,33 @@ The packet-flow view makes the exchange tangible by showing the endpoints, proto
 - Students learning computer networks and the OSI model.
 - IT support and networking beginners building practical fundamentals.
 - Cybersecurity learners exploring how normal network traffic works.
-- Anyone who wants a visual, approachable introduction to internet protocols.
+- Anyone looking for a visual introduction to internet and network protocols.
 
-## 🚀 Open the project
+## 🚀 Try it
 
 **[Launch NetworkVisuals](https://mohd-ali2.github.io/NetworkVisuals/)**
 
-You can also browse the source, report an issue, or suggest an improvement:
+No account or specialised networking software is required. Open the site and start exploring.
 
-- [Source code](https://github.com/Mohd-Ali2/NetworkVisuals)
-- [Report a bug or request a feature](https://github.com/Mohd-Ali2/NetworkVisuals/issues)
+## ⭐ Support the project
+
+If NetworkVisuals helped you understand a networking concept, or you simply find it useful, please consider **giving the repository a star**. It helps more students, networking beginners, and cybersecurity learners discover the project.
+
+[⭐ Star NetworkVisuals on GitHub](https://github.com/Mohd-Ali2/NetworkVisuals)
+
+## 🤝 Feedback and contributions
+
+Found a bug, spotted an incorrect explanation, or have an idea for another protocol or visualisation?
+
+- [Report a bug](https://github.com/Mohd-Ali2/NetworkVisuals/issues)
+- [Suggest a feature or protocol](https://github.com/Mohd-Ali2/NetworkVisuals/issues)
+- [Browse the source code](https://github.com/Mohd-Ali2/NetworkVisuals)
+
+Suggestions, corrections, and improvements are welcome.
 
 ## 🛠️ Built for learning
 
-NetworkVisuals is designed as a lightweight browser-based learning tool. Open the site and start exploring — no account or specialised networking software is required.
+NetworkVisuals is designed as a lightweight, browser-based learning tool. Its goal is to make computer networking, protocol behaviour, and packet flow easier to visualise and understand.
 
 ---
 
