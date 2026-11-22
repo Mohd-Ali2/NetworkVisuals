@@ -54,7 +54,7 @@ details{margin-bottom:8px}summary{cursor:pointer;background:var(--p2);padding:6p
 <section class="pn" id="stagebox"><div class="tabs"><button data-v="net" class="on">Network</button><button data-v="seq">Sequence</button><span id="chip"></span></div>
 <div id="stage"><svg id="map" viewBox="0 0 760 400" preserveAspectRatio="xMidYMid meet"></svg><div id="seq" hidden></div></div></section>
 <section class="pn" id="flow"><div class="fh"><h2>PACKET FLOW</h2><span id="leg"></span>
-<div class="ctl"><select id="spd" aria-label="Speed"><option value=".5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select><button id="bk" title="Step back">‹</button><button id="pl" class="pl">PLAY</button><button id="sp">STEP</button><button id="rs">RESET</button></div></div>
+<div class="ctl"><select id="spd" aria-label="Speed"><option value=".5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select><button id="bk" title="Step back">‹</button><button id="pl" class="pl">PLAY</button><button id="sp">STEP</button><button id="rs">RESET</button><button id="snd" type="button" aria-pressed="true" title="Toggle packet sounds">SOUND ON</button></div></div>
 <div class="tw"><table><thead><tr><th>NO.<th>TIME<th>SOURCE<th>DESTINATION<th>PROTOCOL<th>INFO<th>SIZE</thead><tbody id="rows"></tbody></table></div></section>
 </main>
 <aside class="pn" id="panel"></aside>
@@ -508,6 +508,11 @@ modbus:{name:'Modbus',sub:'Industrial control (OT)',layer:7,nodes:[{id:C,type:'l
 const CAT=`HTTP|Web pages and APIs|app|7;HTTPS|HTTP with encryption|app|7;WebSocket|Two-way web messaging|app|7;WebRTC|Browser video calls|app|7;SIP|Internet phone calls|app|7;RTSP|IP camera streams|app|7;RTMP|Live stream upload|app|7;QUIC|HTTP/3 over UDP|app|4;TCP|Reliable byte streams|core|4;UDP|Fast, no handshake|core|4;IP|Addressing and routing|core|3;BGP|Routing between networks|core|7;IPv6|Next-generation addressing|core|3;DNS|Names to addresses|app|7;DNS over HTTPS|Private DNS lookups|sec|7;DNSSEC|Signed DNS answers|sec|7;DHCP|Automatic address setup|core|7;ICMP|Errors and ping|core|3;IGMP|Multicast groups|core|3;NTP|Clock sync|app|7;Ethernet|Frames and switches|core|2;PPPoE|Broadband logins|core|2;Wi-Fi|Joining a network|core|2;WPA3|Modern Wi-Fi security|sec|2;RADIUS|Enterprise Wi-Fi login|sec|7;Captive Portal|Hotel and café logins|app|7;SMTP|Sending email|app|7;POP3|Downloading email|app|7;IMAP|Syncing email|app|7;FTP|File transfer|app|7;SMB|Windows file sharing|app|7;SSH|Secure remote shell|sec|7;TLS/SSL|Encrypted sessions|sec|6;HTTP Proxy|Forward proxy|app|7;SOCKS5|Generic proxy|app|5;Reverse Proxy|TLS offloading|sec|7;WireGuard|A modern VPN|sec|3;IPsec|IKEv2 and ESP|sec|3;Modbus|Industrial control|app|7`.split(';').map(s=>{const[n,d,c]=s.split('|');return{n,d,c,id:({'tls/ssl':'tls','dns over https':'doh','http proxy':'httpproxy','captive portal':'captive','reverse proxy':'revproxy','wi-fi':'wifi'})[n.toLowerCase()]||n.toLowerCase()}});
 /* ===== engine ===== */
 let cur,curId,tt=0,playing=false,speed=1,target=null,last=0,view='net',cat='all',shown=-1,done={};
+let soundEnabled=true,audioCtx=null;
+function unlockAudio(){try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;if(!audioCtx)audioCtx=new AC();if(audioCtx.state==='suspended')audioCtx.resume()}catch(e){}}
+function packetTone(arrival){if(!soundEnabled||!audioCtx||audioCtx.state!=='running')return;try{const now=audioCtx.currentTime,o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='sine';o.frequency.setValueAtTime(arrival?620:430,now);if(arrival)o.frequency.exponentialRampToValueAtTime(880,now+.105);g.gain.setValueAtTime(.0001,now);g.gain.exponentialRampToValueAtTime(arrival?.026:.012,now+.012);g.gain.exponentialRampToValueAtTime(.0001,now+(arrival?.16:.075));o.connect(g);g.connect(audioCtx.destination);o.start(now);o.stop(now+(arrival?.17:.085))}catch(e){}}
+function soundCrossings(from,to){if(!soundEnabled||to<=from||!cur)return;for(const p of cur.p){if(from<p.b&&to>=p.b)packetTone(false);if(from<p.c&&to>=p.c)packetTone(true)}}
+
 const LEAD=1400,ZI=1100,ZH=500,TR=3800,ez=x=>x<0?0:x>1?1:x*x*(3-2*x);try{done=JSON.parse(localStorage.getItem('pl-done')||'{}')}catch(e){}
 let rows=[],dots=[],rings={};
 function meta(p){const X=p.L.at(-1);if(X.dt)return{ttl:X.tt||p.proto,det:X.dt,kv:X.kv||[['TRANSPORT',p.tp||'Layer 2 frame'],...X.f.slice(0,5).map(f=>[f.n.toUpperCase().slice(0,18),String(f.v)])]};const L=n=>p.L.find(l=>l.n.startsWith(n)),v=(l,n)=>{const f=l&&l.f.find(f=>f.n==n);return f?String(f.v):''},c=(s,n)=>s.length>n?s.slice(0,n-1)+'…':s;
@@ -597,15 +602,16 @@ ids.forEach((id,i)=>{const n=nd(id);el('line',{x1:X(i),y1:50,x2:X(i),y2:H-6,stro
 cur.p.forEach((p,i)=>{if(i>li)return;const y=74+i*38,a=X(ids.indexOf(p.s)),b=X(ids.indexOf(p.d)),c=K[p.kind];
 el('line',{x1:a,y1:y,x2:b,y2:y,stroke:c,'stroke-width':2.5},s);el('path',{d:`M${b} ${y} l${a<b?-9:9} -5 l0 10 Z`,fill:c},s);
 const t=el('text',{x:(a+b)/2,y:y-7,fill:'var(--tx)','text-anchor':'middle',style:'font-size:10px'},s);t.textContent=`${i+1}. ${p.info}`})}
-function tick(ts){const dt=Math.min(ts-last,60);last=ts;if(playing){tt+=dt*speed;if(target!=null&&tt>=target){tt=target;target=null;playing=false}if(tt>=total()){tt=total();playing=false}render()}requestAnimationFrame(tick)}
+function tick(ts){const dt=Math.min(ts-last,60);last=ts;if(playing){const previousTime=tt;tt+=dt*speed;soundCrossings(previousTime,tt);if(target!=null&&tt>=target){tt=target;target=null;playing=false}if(tt>=total()){tt=total();playing=false}render()}requestAnimationFrame(tick)}
 function camv(){const f=[380,200,1],p=cur.p.find(p=>tt>=p.a&&tt<p.e);if(!p)return f;const zm=(id,s)=>{const N=nd(id);return[N.x,N.y+14,s]},w=u=>u<ZI?ez(u/ZI):u<ZI+ZH?1:1-ez((u-ZI-ZH)/ZI);let k=0,z=f;
 if(p.zs&&tt<p.b){z=zm(p.s,1.9);k=w(tt-p.a)}else if(p.zr&&tt>=p.c){z=zm(p.d,1.55);k=w(tt-p.c)}
 return f.map((v,m)=>v+(z[m]-v)*k)}
-$('#pl').onclick=()=>{if(tt>=total())tt=0;shown=-1;target=null;playing=!playing;render()};
-$('#sp').onclick=()=>{if(tt>=total())return;const p=cur.p.find(p=>p.e>tt+1);playing=true;target=p?p.e:null};
+$('#pl').onclick=()=>{unlockAudio();if(tt>=total())tt=0;shown=-1;target=null;playing=!playing;render()};
+$('#sp').onclick=()=>{unlockAudio();if(tt>=total())return;const p=cur.p.find(p=>p.e>tt+1);playing=true;target=p?p.e:null};
 $('#bk').onclick=()=>{playing=false;target=null;const s=cur.p.map(p=>p.e).filter(e=>e<tt-50);tt=s.length?s.at(-1):0;render()};
 $('#rs').onclick=()=>{playing=false;target=null;tt=0;shown=-1;render(true)};
 $('#spd').onchange=e=>speed=+e.target.value;
+$('#snd').onclick=()=>{soundEnabled=!soundEnabled;$('#snd').textContent=soundEnabled?'SOUND ON':'SOUND OFF';$('#snd').setAttribute('aria-pressed',String(soundEnabled));$('#snd').title=soundEnabled?'Mute packet sounds':'Enable packet sounds';if(soundEnabled)unlockAudio()};
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{view=b.dataset.v;document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x==b));$('#map').style.display=view=='net'?'':'none';$('#seq').hidden=view=='net';shown=-1;render(true)});
 $('#q').oninput=drawList;$('#q').onkeydown=e=>{if(e.key=='Enter'){const x=CAT.find(x=>LESSONS[x.id]&&(x.n+x.d).toLowerCase().includes($('#q').value.trim().toLowerCase()));if(x){load(x.id);$('#q').blur()}}};
 addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()=='k'){e.preventDefault();$('#q').focus()}
