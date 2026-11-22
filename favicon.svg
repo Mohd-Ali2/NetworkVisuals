@@ -1,18 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <defs>
-    <linearGradient id="bg" x1="7" y1="5" x2="58" y2="60" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#142b68"/><stop offset=".55" stop-color="#101b46"/><stop offset="1" stop-color="#080f25"/>
+    <linearGradient id="n" x1="12" y1="54" x2="52" y2="10" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#22d3ee"/>
+      <stop offset=".48" stop-color="#2563eb"/>
+      <stop offset="1" stop-color="#6366f1"/>
     </linearGradient>
-    <linearGradient id="blue" x1="13" y1="50" x2="51" y2="13" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#38bdf8"/><stop offset=".48" stop-color="#3b82f6"/><stop offset="1" stop-color="#a5b4fc"/>
-    </linearGradient>
-    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur stdDeviation="2.2" result="blur"/>
-      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
   </defs>
-  <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#bg)" stroke="#4778e8" stroke-opacity=".7" stroke-width="1.5"/>
-  <path d="M15 49V15h9l16 22V15h9v34h-9L24 27v22z" fill="url(#blue)" filter="url(#glow)"/>
-  <path d="M15 49V15h9l16 22V15h9" fill="none" stroke="#dbeafe" stroke-opacity=".55" stroke-width="1.2" stroke-linejoin="round"/>
-  <circle cx="49" cy="49" r="2.4" fill="#67e8f9"/>
+  <path d="M10 56V8h12l20 28V8h12v48H42L22 28v28z" fill="url(#n)"/>
 </svg>
