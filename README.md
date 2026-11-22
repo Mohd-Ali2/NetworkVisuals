@@ -21,7 +21,7 @@
      Suggested path: assets/networkvisuals-preview.png
      Then uncomment the image line below.
 -->
-<!-- ![NetworkVisuals preview](assets/networkvisuals-preview.png) -->
+![NetworkVisuals preview](assets/networkvisuals.png)
 
 ## 🧭 What is NetworkVisuals?
 
