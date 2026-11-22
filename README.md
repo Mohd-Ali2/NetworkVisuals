@@ -15,6 +15,7 @@
   <img src="https://img.shields.io/badge/Protocols-39-0f766e?style=flat-square" alt="39 protocols">
   <img src="https://img.shields.io/badge/Interactive-Learning-7c3aed?style=flat-square" alt="Interactive learning">
   <img src="https://img.shields.io/badge/Format-Single_page_web_app-475569?style=flat-square" alt="Single page web app">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT License"></a>
 </p>
 
 ![NetworkVisuals preview](assets/networkvisuals.png)
@@ -79,6 +80,10 @@ No account or specialised networking software is required. Open the site and sta
 If NetworkVisuals helped you understand a networking concept, or you simply find it useful, please consider **giving the repository a star**. It helps more students, networking beginners, and cybersecurity learners discover the project.
 
 [⭐ Star NetworkVisuals on GitHub](https://github.com/Mohd-Ali2/NetworkVisuals)
+
+## 📄 License
+
+NetworkVisuals is licensed under the [MIT License](LICENSE). You are free to use, modify, and distribute the project, provided the copyright and license notice are included.
 
 ## 🤝 Feedback and contributions
 
