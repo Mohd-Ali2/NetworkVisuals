@@ -640,4 +640,17 @@ $('#ibody').onmouseover=e=>{const t=e.target.closest('[data-k]');if(t)hi(t.datas
 $('#insp').hidden=false;$('#ix').focus()}
 $('#ix').onclick=()=>$('#insp').hidden=true;$('#insp').onclick=e=>{if(e.target.id=='insp')e.target.hidden=true};
 load('http');requestAnimationFrame(tick);
+
+/* ===== privacy-conscious visitor analytics ===== */
+(()=>{
+ const ENDPOINT=window.NV_ANALYTICS_ENDPOINT||''; // Set to your Cloudflare Tunnel URL + /collect
+ if(!ENDPOINT || !/^https:\/\//i.test(ENDPOINT)) return;
+ const notice=document.createElement('div');notice.textContent='This site uses basic visit analytics (IP, browser details, page/referrer and timestamp) to help improve Network Visuals.';
+ notice.style.cssText='position:fixed;bottom:8px;left:8px;z-index:9999;max-width:min(520px,90vw);padding:10px 14px;background:#0c1630;color:#dce5ff;border:1px solid #4a6cf7;border-radius:6px;font:11px/1.5 monospace;';
+ document.body.appendChild(notice);setTimeout(()=>notice.remove(),10000);
+ const data={page:location.href.slice(0,500),referrer:document.referrer.slice(0,500),language:navigator.language||'',languages:(navigator.languages||[]).slice(0,5),timezone:Intl.DateTimeFormat().resolvedOptions().timeZone||'',screen:{width:screen.width,height:screen.height,pixelRatio:Math.min(devicePixelRatio||1,4)},event:'pageview',session:sessionStorage.getItem('nv-session')||''};
+ if(!data.session){data.session=crypto.randomUUID();try{sessionStorage.setItem('nv-session',data.session)}catch(e){}}
+ fetch(ENDPOINT,{method:'POST',mode:'cors',credentials:'omit',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:JSON.stringify(data),keepalive:true}).catch(()=>{});
+})();
+
 </script></body></html>
