@@ -508,19 +508,22 @@ modbus:{name:'Modbus',sub:'Industrial control (OT)',layer:7,nodes:[{id:C,type:'l
 const CAT=`HTTP|Web pages and APIs|app|7;HTTPS|HTTP with encryption|app|7;WebSocket|Two-way web messaging|app|7;WebRTC|Browser video calls|app|7;SIP|Internet phone calls|app|7;RTSP|IP camera streams|app|7;RTMP|Live stream upload|app|7;QUIC|HTTP/3 over UDP|app|4;TCP|Reliable byte streams|core|4;UDP|Fast, no handshake|core|4;IP|Addressing and routing|core|3;BGP|Routing between networks|core|7;IPv6|Next-generation addressing|core|3;DNS|Names to addresses|app|7;DNS over HTTPS|Private DNS lookups|sec|7;DNSSEC|Signed DNS answers|sec|7;DHCP|Automatic address setup|core|7;ICMP|Errors and ping|core|3;IGMP|Multicast groups|core|3;NTP|Clock sync|app|7;Ethernet|Frames and switches|core|2;PPPoE|Broadband logins|core|2;Wi-Fi|Joining a network|core|2;WPA3|Modern Wi-Fi security|sec|2;RADIUS|Enterprise Wi-Fi login|sec|7;Captive Portal|Hotel and café logins|app|7;SMTP|Sending email|app|7;POP3|Downloading email|app|7;IMAP|Syncing email|app|7;FTP|File transfer|app|7;SMB|Windows file sharing|app|7;SSH|Secure remote shell|sec|7;TLS/SSL|Encrypted sessions|sec|6;HTTP Proxy|Forward proxy|app|7;SOCKS5|Generic proxy|app|5;Reverse Proxy|TLS offloading|sec|7;WireGuard|A modern VPN|sec|3;IPsec|IKEv2 and ESP|sec|3;Modbus|Industrial control|app|7`.split(';').map(s=>{const[n,d,c]=s.split('|');return{n,d,c,id:({'tls/ssl':'tls','dns over https':'doh','http proxy':'httpproxy','captive portal':'captive','reverse proxy':'revproxy','wi-fi':'wifi'})[n.toLowerCase()]||n.toLowerCase()}});
 /* ===== engine ===== */
 let cur,curId,tt=0,playing=false,speed=1,target=null,last=0,view='net',cat='all',shown=-1,done={};
-let soundEnabled=true;
-const packetAudio={
- send:new Audio('./assets/sounds/packet-send.wav'),
- arrival:new Audio('./assets/sounds/packet-arrival.wav')
-};
-Object.values(packetAudio).forEach(a=>{a.preload='auto';a.volume=.9});
-function packetTone(arrival){
- if(!soundEnabled)return;
- try{const source=arrival?packetAudio.arrival:packetAudio.send,a=source.cloneNode();
- a.volume=.9;a.play().catch(()=>{});
- }catch(e){}
+const completionAudio=new Audio('./assets/sounds/end.wav');
+completionAudio.preload='auto';
+completionAudio.volume=0.9;
+let completionPlayed=false, audioUnlocked=false;
+function unlockCompletionAudio(){
+ if(audioUnlocked)return;
+ audioUnlocked=true;
+ const oldVolume=completionAudio.volume;
+ completionAudio.volume=0;
+ completionAudio.play().then(()=>{completionAudio.pause();completionAudio.currentTime=0;completionAudio.volume=oldVolume;}).catch(()=>{completionAudio.volume=oldVolume;audioUnlocked=false;});
 }
-function soundCrossings(from,to){if(!soundEnabled||to<=from||!cur)return;for(const p of cur.p){if(from<p.b&&to>=p.b)packetTone(false);if(from<p.c&&to>=p.c)packetTone(true)}}
+function playCompletionSound(){
+ if(completionPlayed)return;
+ completionPlayed=true;
+ try{completionAudio.currentTime=0;completionAudio.volume=0.9;completionAudio.play().catch(()=>{});}catch(e){}
+}
 
 const LEAD=1400,ZI=1100,ZH=500,TR=3800,ez=x=>x<0?0:x>1?1:x*x*(3-2*x);try{done=JSON.parse(localStorage.getItem('pl-done')||'{}')}catch(e){}
 let rows=[],dots=[],rings={};
@@ -558,7 +561,7 @@ if(n.type=='laptop'){a('rect',{x:-34,y:-30,width:68,height:44,rx:3});a('rect',{x
 else if(n.type=='router'){a('rect',{x:-36,y:-12,width:72,height:26,rx:4});a('path',{d:'M-24 -12 L-28 -34 M24 -12 L28 -34'});el('circle',{cx:-20,cy:1,r:3,fill:'#22c55e'},g);el('circle',{cx:-8,cy:1,r:3,fill:'#4a6cf7'},g)}
 else if(n.type=='cloud'){a('path',{d:'M-34 14 a16 16 0 0 1 2 -32 a22 22 0 0 1 42 -6 a18 18 0 0 1 22 22 a12 12 0 0 1 -6 16 Z'})}
 else{for(let i=0;i<3;i++){a('rect',{x:-32,y:-34+i*22,width:64,height:18,rx:3});el('circle',{cx:-22,cy:-25+i*22,r:2.5,fill:'#22c55e'},g)}}}
-function load(id){curId=id;cur=LESSONS[id];tt=0;playing=false;target=null;shown=-1;completionPlayed=false;
+function load(id){curId=id;cur=LESSONS[id];tt=0;playing=false;target=null;shown=-1;completionPlayed=false;completionPlayed=false;
 $('#ttl').textContent=cur.name.toUpperCase()+' · '+cur.sub.toUpperCase();
 $('#layers').innerHTML='';for(let i=1;i<=7;i++)h('span',i==cur.layer?'on':'',i,$('#layers'));
 $('#leg').innerHTML=Object.keys(K).map(k=>`<span><i style="background:${K[k]}"></i>${KN[k]}</span>`).join('');
